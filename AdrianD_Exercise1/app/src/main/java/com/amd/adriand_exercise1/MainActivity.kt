@@ -110,7 +110,7 @@ private fun Greetings(
 
 @Composable
 private fun Greeting(name: String, modifier: Modifier = Modifier){
-    //Car
+    //custom colors for card composable
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
@@ -123,8 +123,9 @@ private fun Greeting(name: String, modifier: Modifier = Modifier){
 
 @Composable
 private fun CardContent(name: String) {
+    //track whether card content is expanded
     var expanded by rememberSaveable { mutableStateOf(false) }
-
+    //card content composable
     Row(
         modifier = Modifier
             .padding(12.dp)
@@ -146,6 +147,7 @@ private fun CardContent(name: String) {
                     fontWeight = FontWeight.ExtraBold
                 )
             )
+            //the following contents are displayed if the card is expanded
             if (expanded) {
                 Text(
                     text = ("Lorem ipsum color sit lazy amet, " +
@@ -153,6 +155,7 @@ private fun CardContent(name: String) {
                 )
             }
         }
+        //icon toggle expanded state
         IconButton(onClick = { expanded = !expanded }) {
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
