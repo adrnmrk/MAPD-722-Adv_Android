@@ -58,3 +58,5 @@ outTmp/
 /kotlin-native/dist
 kotlin-ide/
 .kotlin/
+*.bin
+*.lock
