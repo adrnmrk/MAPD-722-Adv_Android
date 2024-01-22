@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623488085558",
+    "project_id": "pushnotification-82bcf",
+    "storage_bucket": "pushnotification-82bcf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623488085558:android:c1acc83dcfef3688e87297",
+        "android_client_info": {
+          "package_name": "com.amd.pushnotificationapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcpQji7_LyJnrG-W992-vad9aGYNJjMY8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

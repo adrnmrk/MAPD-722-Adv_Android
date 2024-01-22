@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AdrianD_Exercise2Theme {
-                // A surface container using the 'background' color from the theme
+                //'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -52,8 +52,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 @JvmOverloads
 @Composable
+//screensetup from MainScreen fun
 fun ScreenSetup(viewModel: DemoViewModel = viewModel()) {
     MainScreen(
         isFahrenheit = viewModel.isFahrenheit,
@@ -62,33 +64,43 @@ fun ScreenSetup(viewModel: DemoViewModel = viewModel()) {
         switchChange = { viewModel.switchChange() }
     )
 }
+
 @Composable
 fun MainScreen(
     isFahrenheit: Boolean,
     result: String,
     convertTemp: (String) -> Unit,
-    switchChange: () -> Unit
+    switchChange: () -> Unit,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()) {
+    // Main screen layout with UI
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
         var textState by remember { mutableStateOf("") }
-        val onTextChange = { text : String ->
+        // Callback for text input change
+        val onTextChange = { text: String ->
             textState = text
         }
-        Text("Temperature Converter",
+        Text(
+            "Temperature Converter",
             modifier = Modifier.padding(20.dp),
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineLarge
         )
+        //input and unit selection
         InputRow(
             isFahrenheit = isFahrenheit,
             textState = textState,
             switchChange = switchChange,
             onTextChange = onTextChange
         )
-        Text(result,
+        //conversion results
+        Text(
+            result,
             modifier = Modifier.padding(20.dp),
             style = MaterialTheme.typography.headlineMedium
         )
+        //button to convert the temp
         Button(
             onClick = { convertTemp(textState) }
         )
@@ -97,6 +109,7 @@ fun MainScreen(
         }
     }
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DefaultPreview(model: DemoViewModel = viewModel()) {
@@ -116,13 +129,16 @@ fun InputRow(
     isFahrenheit: Boolean,
     textState: String,
     switchChange: () -> Unit,
-    onTextChange: (String) -> Unit
+    onTextChange: (String) -> Unit,
 ) {
+    //Row to show Switch and OutlinedTextField components
     Row(verticalAlignment = Alignment.CenterVertically) {
+        //switch F to C units
         Switch(
             checked = isFahrenheit,
             onCheckedChange = { switchChange() }
         )
+        //input box
         OutlinedTextField(
             value = textState,
             onValueChange = { onTextChange(it) },
@@ -130,7 +146,7 @@ fun InputRow(
                 keyboardType = KeyboardType.Number
             ),
             singleLine = true,
-            label = { Text("Enter Temperature")},
+            label = { Text("Enter Temperature") },
             modifier = Modifier.padding(10.dp),
             textStyle = androidx.compose.ui.text.TextStyle(
                 fontWeight = FontWeight.Bold,
@@ -145,9 +161,10 @@ fun InputRow(
                 )
             }
         )
+        //Display F or C based on switch status
         Crossfade(
             targetState = isFahrenheit,
-            animationSpec = tween(2000)
+            animationSpec = tween(1000)
         ) { visible ->
             when (visible) {
                 true -> Text("\u2109", style = MaterialTheme.typography.headlineMedium)
