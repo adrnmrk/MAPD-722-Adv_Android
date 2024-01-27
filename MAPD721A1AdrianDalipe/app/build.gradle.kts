@@ -5,12 +5,13 @@ plugins {
 
 android {
     namespace = "com.amd.mapd721_a1_adriandalipe"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.amd.mapd721_a1_adriandalipe"
         minSdk = 24
-        targetSdk = 33
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -40,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.2.0"
     }
     packaging {
         resources {
@@ -61,6 +62,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.firebase:firebase-inappmessaging-ktx:20.4.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
