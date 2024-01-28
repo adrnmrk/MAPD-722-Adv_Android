@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,7 +46,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MAPD721A1AdrianDalipeTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -66,6 +66,9 @@ fun MainScreen() {
     val scope = rememberCoroutineScope()
     // datastore user details
     val dataStore = StoreUserDetails(context)
+
+    // track whether dialog should be shownClear Button
+    var showClearConfirmationDialog by remember { mutableStateOf(false) }
 
     // get saved user details
     val savedUsernameState = dataStore.getUsername.collectAsState(initial = "")
@@ -192,6 +195,7 @@ fun MainScreen() {
                 )
             }
 
+
             // Clear Button
             Button(
                 modifier = Modifier
@@ -199,13 +203,8 @@ fun MainScreen() {
                     .height(60.dp)
                     .padding(start = 8.dp, end = 8.dp),
                 onClick = {
-                    // Your action for the Clear button
-                    scope.launch {
-                        email = ""
-                        username = ""
-                        userId = ""
-                        dataStore.clearDetails()
-                    }
+                    // Show the confirmation dialog
+                    showClearConfirmationDialog = true
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.light_red)
@@ -219,6 +218,48 @@ fun MainScreen() {
                     text = "Clear",
                     color = androidx.compose.ui.graphics.Color.Black,
                     fontSize = 18.sp
+                )
+            }
+
+            // Confirmation Dialog for clear
+            if (showClearConfirmationDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        // Dismiss the dialog when clicking outside
+                        showClearConfirmationDialog = false
+                    },
+                    title = {
+                        Text("Clear Data")
+                    },
+                    text = {
+                        Text("Are you sure you want to clear the data?")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                // Clear the data and dismiss the dialog
+                                scope.launch {
+                                    email = ""
+                                    username = ""
+                                    userId = ""
+                                    dataStore.clearDetails()
+                                }
+                                showClearConfirmationDialog = false
+                            }
+                        ) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                // Dismiss the dialog without clearing the data
+                                showClearConfirmationDialog = false
+                            }
+                        ) {
+                            Text("No")
+                        }
+                    }
                 )
             }
         }
