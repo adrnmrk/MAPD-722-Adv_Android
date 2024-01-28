@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,9 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -129,8 +132,6 @@ fun MainScreen() {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Save Button
-
 
             // Load Button
             Button(
@@ -147,7 +148,8 @@ fun MainScreen() {
                     userId = savedIDState.value.orEmpty()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.light_yellow)),
+                    containerColor = colorResource(id = R.color.light_yellow)
+                ),
                 border = BorderStroke(
                     width = 1.0.dp,
                     color = androidx.compose.ui.graphics.Color.Yellow
@@ -175,7 +177,8 @@ fun MainScreen() {
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.light_green)),
+                    containerColor = colorResource(id = R.color.light_green)
+                ),
                 border = BorderStroke(
                     width = 1.0.dp,
                     color = androidx.compose.ui.graphics.Color.Green,
@@ -205,7 +208,8 @@ fun MainScreen() {
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.light_red)),
+                    containerColor = colorResource(id = R.color.light_red)
+                ),
                 border = BorderStroke(
                     width = 1.0.dp,
                     color = androidx.compose.ui.graphics.Color.Red
@@ -218,12 +222,40 @@ fun MainScreen() {
                 )
             }
         }
+        //use remaining vertical space, ensure that box is at the bottom
+        Spacer(modifier = Modifier.weight(1f))
+        //student details
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .background(color = colorResource(id = R.color.light_blue)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                // Student Name Text
+                Text(
+                    text = stringResource(id = R.string.student_name),
+                    color = androidx.compose.ui.graphics.Color.Blue,
+                    fontSize = 18.sp
+                )
 
+                Spacer(modifier = Modifier.height(4.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
+                // Student ID Text
+                Text(
+                    text = stringResource(id = R.string.student_id),
+                    color = androidx.compose.ui.graphics.Color.Blue,
+                    fontSize = 18.sp
+                )
+            }
+        }
+
 
     }
-
 
 }
 
