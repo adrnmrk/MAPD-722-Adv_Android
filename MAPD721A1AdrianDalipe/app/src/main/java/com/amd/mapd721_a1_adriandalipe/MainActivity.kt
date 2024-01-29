@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -67,7 +66,7 @@ fun MainScreen() {
     // datastore user details
     val dataStore = StoreUserDetails(context)
 
-    // track whether dialog should be shownClear Button
+    // track whether dialog should be shown
     var showClearConfirmationDialog by remember { mutableStateOf(false) }
 
     // get saved user details
@@ -128,7 +127,6 @@ fun MainScreen() {
         )
         Spacer(modifier = Modifier.height(20.dp))
 
-        // save button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -145,7 +143,6 @@ fun MainScreen() {
 
                 onClick = {
                     // Your action for the Load button
-
                     email = savedEmailState.value.orEmpty()
                     username = savedUsernameState.value.orEmpty()
                     userId = savedIDState.value.orEmpty()
@@ -171,7 +168,7 @@ fun MainScreen() {
                     .height(60.dp)
                     .padding(start = 8.dp, end = 8.dp),
                 onClick = {
-
+                    //store details and clear the fields
                     scope.launch {
                         dataStore.saveDetails(username, email, userId)
                         email = ""

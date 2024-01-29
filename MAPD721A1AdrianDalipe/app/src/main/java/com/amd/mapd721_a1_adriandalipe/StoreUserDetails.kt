@@ -23,7 +23,7 @@ class StoreUserDetails(private val context: Context) {
         val USER_ID_KEY = stringPreferencesKey("user_id")
     }
 
-    // Flows for observing stored username, email, and id
+    // Flow reps con't stream of data, this retrieves values from preferences data
     val getUsername: Flow<String?> = context.dataStore.data
         .map { preferences ->
             preferences[USER_NAME_KEY] ?: ""
@@ -37,7 +37,7 @@ class StoreUserDetails(private val context: Context) {
             preferences[USER_ID_KEY] ?: ""
         }
 
-    // Save user details in DataStore
+    // function to save user details in DataStore
     suspend fun saveDetails(username: String, email: String, id: String) {
         // Use the DataStore's edit function to make changes to the stored preferences
         context.dataStore.edit { preferences ->
@@ -54,7 +54,7 @@ class StoreUserDetails(private val context: Context) {
     private fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-
+    // function to clear user details in DataStore
     suspend fun clearDetails() {
         // delete details from datastore
         context.dataStore.edit { preferences ->
