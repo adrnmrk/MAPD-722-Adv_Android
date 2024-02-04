@@ -1,4 +1,4 @@
-package com.example.contentproviderdemo
+package com.example.a2_adriandalipe
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -25,13 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.contentproviderdemo.ui.theme.ContentProviderDemoTheme
+import com.example.a2_adriandalipe.ui.theme.A2_AdrianDalipeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ContentProviderDemoTheme {
+            A2_AdrianDalipeTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -119,7 +119,7 @@ fun loadContacts(context: ComponentActivity, selection: String?, selectionArgs: 
 @Preview(showBackground = true)
 @Composable
 fun ContactsListPreview() {
-    ContentProviderDemoTheme {
+    A2_AdrianDalipeTheme {
         ContactsList(context = ComponentActivity())
     }
 }
