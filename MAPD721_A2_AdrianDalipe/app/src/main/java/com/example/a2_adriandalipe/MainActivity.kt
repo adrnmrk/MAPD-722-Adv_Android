@@ -48,7 +48,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             A2_AdrianDalipeTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -176,7 +175,8 @@ fun ContactItem(contact: Contact) {
 @SuppressLint("Range")
 fun loadContacts(context: ComponentActivity): List<Contact> {
     val contacts = mutableListOf<Contact>()
-    //Query content resolver for contact data
+
+    // Query content resolver for contact data
     context.contentResolver.query(
         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
         arrayOf(
@@ -186,16 +186,21 @@ fun loadContacts(context: ComponentActivity): List<Contact> {
         null,
         null,
         ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
-        // 'Use' block to automatically close the cursor when done
     )?.use { cursor ->
         if (cursor.moveToFirst()) {
             do {
                 // Retrieve name and phone number from the cursor
                 val displayName =
                     cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY))
-                val phoneNumber =
-                    cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                contacts.add(Contact(displayName, phoneNumber))
+
+                // Check if phone number is not null
+                val phoneNumberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                val phoneNumber = if (phoneNumberIndex != -1) cursor.getString(phoneNumberIndex) else null
+
+                // Add contact only if both name and phone number are not null
+                if (displayName != null && phoneNumber != null) {
+                    contacts.add(Contact(displayName, phoneNumber))
+                }
             } while (cursor.moveToNext())
         }
     }
@@ -226,6 +231,8 @@ fun saveContact(context: ComponentActivity, name: String, number: String) {
                 val phoneValues = ContentValues().apply {
                     put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
                     put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                    put(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
+
                 }
 
                 context.contentResolver.insert(
@@ -243,6 +250,7 @@ fun saveContact(context: ComponentActivity, name: String, number: String) {
         } else {
             // Show a toast message for empty fields
             Toast.makeText(context, "Name and phone number cannot be empty.", Toast.LENGTH_SHORT).show()
+
         }
     } catch (e: Exception) {
         // Log the exception for further debugging
