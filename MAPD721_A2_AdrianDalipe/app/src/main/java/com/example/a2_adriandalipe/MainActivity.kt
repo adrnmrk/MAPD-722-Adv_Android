@@ -11,6 +11,7 @@ import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,11 +39,10 @@ import com.example.a2_adriandalipe.ui.theme.A2_AdrianDalipeTheme
 
 // manage permission request
 const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
-//hold contact data
+//data class for contact data
 data class Contact(val displayName: String, val contactNumber: String)
 
 class MainActivity : ComponentActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,11 +121,11 @@ fun ContactsList(context: ComponentActivity) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 8.dp)
+
         ) {
             Text("Save Contact")
         }
-
 
         // Load Button
         Button(
@@ -134,7 +135,9 @@ fun ContactsList(context: ComponentActivity) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp),
+            colors = ButtonDefaults.buttonColors(Color.Blue)
+
         ) {
             Text("Load Contacts")
         }
@@ -168,12 +171,12 @@ fun ContactItem(contact: Contact) {
         }
     }
 }
-
-
+//query the phone contacts using the content resolver,
+// retrieves the display name and phone number from the result cursor, and creates a list of Contact objects.
 @SuppressLint("Range")
 fun loadContacts(context: ComponentActivity): List<Contact> {
     val contacts = mutableListOf<Contact>()
-
+    //Query content resolver for contact data
     context.contentResolver.query(
         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
         arrayOf(
@@ -183,9 +186,11 @@ fun loadContacts(context: ComponentActivity): List<Contact> {
         null,
         null,
         ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
+        // 'Use' block to automatically close the cursor when done
     )?.use { cursor ->
         if (cursor.moveToFirst()) {
             do {
+                // Retrieve name and phone number from the cursor
                 val displayName =
                     cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY))
                 val phoneNumber =
@@ -197,43 +202,47 @@ fun loadContacts(context: ComponentActivity): List<Contact> {
 
     return contacts
 }
-
+//save contact to the contact list
 fun saveContact(context: ComponentActivity, name: String, number: String) {
     try {
-        val rawContactId = getRawContactId(context)
+        // Check if name and number are not empty
+        if (name.isNotEmpty() && number.isNotEmpty()) {
+            val rawContactId = getRawContactId(context)
 
-        if (rawContactId != null) {
-            // Save contact name
-            val nameValues = ContentValues().apply {
-                put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-                put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
+            if (rawContactId != null) {
+                // Save contact name
+                val nameValues = ContentValues().apply {
+                    put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+                    put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
+                }
+
+                context.contentResolver.insert(
+                    ContactsContract.Data.CONTENT_URI,
+                    nameValues
+                )
+
+                // Save phone number
+                val phoneValues = ContentValues().apply {
+                    put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+                    put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                }
+
+                context.contentResolver.insert(
+                    ContactsContract.Data.CONTENT_URI,
+                    phoneValues
+                )
+
+                // Show a success toast message
+                Toast.makeText(context, "Contact saved successfully", Toast.LENGTH_SHORT).show()
+            } else {
+                // Handle the case where raw_contact_id is not available
+                // Show an error toast message
+                Toast.makeText(context, "Failed to save contact. Try again later.", Toast.LENGTH_SHORT).show()
             }
-
-            context.contentResolver.insert(
-                ContactsContract.Data.CONTENT_URI,
-                nameValues
-            )
-
-            // Save phone number
-            val phoneValues = ContentValues().apply {
-                put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-                put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                put(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
-                put(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
-            }
-
-            context.contentResolver.insert(
-                ContactsContract.Data.CONTENT_URI,
-                phoneValues
-            )
-
-            // Show a success toast message
-            Toast.makeText(context, "Contact saved successfully", Toast.LENGTH_SHORT).show()
         } else {
-            // Handle the case where raw_contact_id is not available
-            // Show an error toast message
-            Toast.makeText(context, "Failed to save contact. Try again later.", Toast.LENGTH_SHORT).show()
+            // Show a toast message for empty fields
+            Toast.makeText(context, "Name and phone number cannot be empty.", Toast.LENGTH_SHORT).show()
         }
     } catch (e: Exception) {
         // Log the exception for further debugging
@@ -243,6 +252,7 @@ fun saveContact(context: ComponentActivity, name: String, number: String) {
         Toast.makeText(context, "Failed to save contact. Try again later.", Toast.LENGTH_SHORT).show()
     }
 }
+
 
 
 private fun getRawContactId(context: ComponentActivity): Long? {
