@@ -127,6 +127,7 @@ fun WeatherApp() {
                     .padding(vertical = 8.dp)
             )
         }
+            //dropdown/spinner for city
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
@@ -185,7 +186,7 @@ fun WeatherApp() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Buttons
+        //save weather data button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -215,7 +216,7 @@ fun WeatherApp() {
             }
 
             Spacer(modifier = Modifier.width(16.dp))
-
+            //retrieve weather details and display on fields
             Button(
                 onClick = {
                     scope.launch {

@@ -24,7 +24,8 @@ class StoreUserDetails(private val context: Context) {
     }
 
     // Flow reps con't stream of data, this retrieves values from preferences data
-        .map { preferences ->
+    val getUsername: Flow<String?> = context.dataStore.data
+    .map { preferences ->
             preferences[USER_NAME_KEY] ?: ""
         }
     val getEmail: Flow<String?> = context.dataStore.data
