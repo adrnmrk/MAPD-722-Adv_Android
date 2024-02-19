@@ -66,4 +66,12 @@ class StoreWeatherDetails(private val context: Context) {
     private fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+    
+    // Function to save the selected city name in DataStore
+    suspend fun saveCityName(city: String) {
+        context.datastore.edit { preferences ->
+            preferences[CITY_NAME_KEY] = city
+        }
+    }
+
 }
