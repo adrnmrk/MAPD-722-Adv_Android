@@ -118,7 +118,7 @@ fun WeatherApp() {
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clickable(onClick = { expanded = true })
         ) {
-            if (selectedCity.isEmpty()) {
+                if (selectedCity.isEmpty()) {
                 // Show the label "City" if no city is selected
                 Text(
                     text = "City",

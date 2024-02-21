@@ -46,7 +46,7 @@ class StoreWeatherDetails(private val context: Context) {
             preferences[DESCRIPTION_KEY] ?: ""
         }
 
-    // function to save user details in DataStore
+    // save user details in DataStore
     suspend fun saveWeatherDetails(city: String, date: String, temp: String, wind: String, description: String) {
         // Use the DataStore's edit function to make changes to the stored preferences
         context.datastore.edit { preferences ->
