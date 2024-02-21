@@ -23,11 +23,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,18 +75,28 @@ class MainActivity : ComponentActivity() {
 fun WeatherApp() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    //val to access datastore from StoreWeatherDetails
     val dataStore = StoreWeatherDetails(context)
     // Retrieve the default typography settings
     val typography = MaterialTheme.typography
-
+   // value to access and update through inputs like text fields and dropdown
     var selectedCity by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var temperature by remember { mutableStateOf("") }
+    //temp scale checkbox
+    var temperatureScale by remember { mutableStateOf("C") }
+
     var wind by remember { mutableStateOf("") }
+    //windspeed radio
+    var windSpeed by remember { mutableStateOf("KPH")
+
+    }
+
     var description by remember { mutableStateOf("") }
-
+    //list of cities
     val cities = listOf("Toronto", "Montreal", "Vancouver")
-
+    //column for the entire view
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -93,7 +105,7 @@ fun WeatherApp() {
         // Spinner for selecting city
         var expanded by remember { mutableStateOf(false) }
 
-        // DropdownMenu for selecting city
+        // start DropdownMenu for selecting city
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,7 +139,7 @@ fun WeatherApp() {
                     .padding(vertical = 8.dp)
             )
         }
-            //dropdown/spinner for city
+            //dropdown or spinner for city
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
@@ -143,7 +155,7 @@ fun WeatherApp() {
                     })
                 }
             }
-        }
+        }//end dropdown
 // Save the selected city name when it's changed
         DisposableEffect(selectedCity) {
             scope.launch {
@@ -165,17 +177,47 @@ fun WeatherApp() {
         OutlinedTextField(
             value = temperature,
             onValueChange = { temperature = it },
-            label = { Text("Temperature in Celsius") },
+            label = { Text("Temperature") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
         Spacer(modifier = Modifier.height(8.dp))
+        //begin checkbox
+        Checkbox(
+            checked = temperatureScale == "F",
+            onCheckedChange = {temperatureScale = if (it) "F" else "C"})
+        Text(text = "Temperature in Fahrenheit?", modifier = Modifier.padding(start = 2.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         OutlinedTextField(
             value = wind,
             onValueChange = { wind = it },
-            label = { Text("Wind in KpH") },
+            label = { Text("Wind") },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //Radio buttons for wind
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            RadioButton(
+                selected = windSpeed == "KPH",
+                onClick = { windSpeed = "KPH" }
+            )
+            Text(text = "KPH", modifier = Modifier.padding(start = 4.dp))
+
+            RadioButton(
+                selected = windSpeed == "MPH",
+                onClick = { windSpeed = "MPH" },
+                modifier = Modifier.padding(start = 16.dp)
+            )
+            Text(text = "MPH", modifier = Modifier.padding(start = 4.dp))
+        }//radio end
+
+
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = description,
@@ -216,7 +258,8 @@ fun WeatherApp() {
             }
 
             Spacer(modifier = Modifier.width(16.dp))
-            //retrieve weather details and display on fields
+            //retrieve weather details and display on fields from datastore
+
             Button(
                 onClick = {
                     scope.launch {
@@ -244,13 +287,15 @@ fun WeatherApp() {
 
         // Text fields for displaying weather details
         Text(text = "Date: $date", fontSize = 16.sp)
-        Text(text = "Temperature: $temperature", fontSize = 16.sp)
-        Text(text = "Wind: $wind", fontSize = 16.sp)
+        Text(text = "Temperature: $temperature $temperatureScale", fontSize = 16.sp)
+        Text(text = "Wind: $wind $windSpeed", fontSize = 16.sp)
         Text(text = "Description: $description", fontSize = 16.sp)
 
     }
 
 }
+// Define an enum for wind units
+
 
 // Helper function to show a Toast message
 private fun showToast(context: Context, message: String) {
