@@ -1,29 +1,32 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.animation_a3
+
 import android.annotation.SuppressLint
 import android.os.Bundle
-
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -95,29 +98,47 @@ fun AnimatedButton(navController: NavController, label: String, animationType: S
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DetailsScreen(navController: NavController, animationType: String) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Animation Details") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Animation Type: $animationType")
-            }
-        }
-    )
-}
+    var isPhotoVisible by remember { mutableStateOf(false) }
+    val buttonLabel = if (isPhotoVisible) "Press for Exit Animation" else "Press for Enter Animation"
 
+    val transition = updateTransition(targetState = isPhotoVisible, label = "photoTransition")
+    val photoAlpha by transition.animateFloat(
+        transitionSpec = { tween(durationMillis = 1000, easing = LinearOutSlowInEasing) },
+        label = "photoAlpha"
+    ) { visible ->
+        if (visible) 1f else 0f
+    }
+    val photoScale by transition.animateFloat(
+        transitionSpec = { tween(durationMillis = 1000, easing = LinearOutSlowInEasing) },
+        label = "photoScale"
+    ) { visible ->
+        if (visible) 1f else 0.5f
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(R.drawable.rog),
+            contentDescription = "Photo",
+            modifier = Modifier
+                .size(200.dp)
+                .scale(photoScale)
+                .alpha(photoAlpha)
+        )
+
+        Button(
+            onClick = {
+                isPhotoVisible = !isPhotoVisible
+            },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = buttonLabel)
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
