@@ -10,11 +10,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,9 +29,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,10 +37,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
-import androidx.navigation.navOptions
 import com.example.animation_a3.ui.theme.Animation_A3Theme
-import com.example.animation_a3.ui.theme.Purple80
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,143 +48,211 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController, startDestination = "home") {
                     composable("home") { HomeScreen(navController) }
-                    composable(
-                        "details/{animationType}",
-                        deepLinks = listOf(navDeepLink { uriPattern = "details/{animationType}" })
-                    ) { backStackEntry ->
-                        val animationType = backStackEntry.arguments?.getString("animationType") ?: ""
-                        DetailsScreen(navController, animationType)
+                    composable("transition") {
+                        TransitionAnimationScreen(navController)
+
+                        //)
+//                        { backStackEntry ->
+//                        val animationType = backStackEntry.arguments?.getString("animationType") ?: ""
+//                        DetailsScreen(navController, animationType)
+                    }
                     }
                 }
             }
         }
     }
-}
 
-@Composable
-fun HomeScreen(navController: NavController) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AnimatedButton(navController, "Transition Animation", "transition")
-        AnimatedButton(navController, "Scale Animation", "scale")
-        AnimatedButton(navController, "Infinite Animation", "infinite")
-        AnimatedButton(navController, "Enter Exit Animation", "enter_exit")
+    @Composable
+    fun HomeScreen(navController: NavController) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AnimatedButton(navController, "Transition Animation", "transition")
+            AnimatedButton(navController, "Scale Animation", "scale")
+            AnimatedButton(navController, "Infinite Animation", "infinite")
+            AnimatedButton(navController, "Enter Exit Animation", "enter_exit")
+        }
     }
-}
 
-@Composable
-fun AnimatedButton(navController: NavController, label: String, animationType: String) {
-    Button(
-        onClick = {
-            navController.navigate("details/$animationType") {
-                launchSingleTop = true
-                navOptions {
-                    anim {
-                        enter = android.R.anim.fade_in
-                        exit = android.R.anim.fade_out
-                        popEnter = android.R.anim.fade_in
-                        popExit = android.R.anim.fade_out
+    @Composable
+    fun AnimatedButton(navController: NavController, label: String, animationType: String) {
+        Button(
+            onClick = {
+                when (animationType) {
+                    "transition" -> {
+                        navController.navigate("transition")
+                    }
+
+                    "scale" -> {
+                        // Implement Scale Animation screen navigation here
+                    }
+
+                    "infinite" -> {
+                        // Implement Infinite Animation screen navigation here
+                    }
+
+                    "enter_exit" -> {
+                        // Implement Enter Exit Animation screen navigation here
+                        TODO()
+
+                    }
+                }
+            },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = label)
+        }
+    }
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @Composable
+    fun TransitionAnimationScreen(navController: NavController) {
+        var isRocketLaunched by remember { mutableStateOf(false) }
+        val buttonLabel = if (isRocketLaunched) "Land Rocket" else "Launch Rocket"
+
+        // Define the animation properties
+        val animatedRocketTopOffset by animateFloatAsState(
+            targetValue = if (isRocketLaunched)  100f else 500f, // Adjust the targetValue as needed
+            animationSpec = tween(durationMillis = 1500) // Adjust the duration as needed
+        )
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "Transition Animation") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                )
+            },
+            content = {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    // Image with animated position
+                    Image(
+                        painter = painterResource(R.drawable.rocket),
+                        contentDescription = "Rocket",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .offset(
+                                x = (150).dp, // Adjust horizontal offset as needed
+                                y = maxOf(animatedRocketTopOffset.dp, 0.dp)
+                            )
+                            //.align(Alignment.BottomEnd) // Align to bottom-right corner
+                    )
+
+                    // Button at the left side of the screen
+                    Button(
+                        onClick = {
+                            isRocketLaunched = !isRocketLaunched
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterStart) // Align to bottom-left corner
+                            .padding(16.dp)
+                    ) {
+                        Text(text = buttonLabel)
                     }
                 }
             }
-        },
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Text(text = label)
+        )
     }
-}
+
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun DetailsScreen(navController: NavController, animationType: String) {
-    var isPhotoVisible by remember { mutableStateOf(false) }
-    var photoScale by remember { mutableStateOf(1f) }
-    val buttonLabel = if (isPhotoVisible) "Press for Exit Animation" else "Press for Enter Animation"
+    @Composable
+    fun DetailsScreen(navController: NavController, animationType: String) {
+        var isPhotoVisible by remember { mutableStateOf(false) }
+        var photoScale by remember { mutableStateOf(1f) }
+        val buttonLabel =
+            if (isPhotoVisible) "Press for Exit Animation" else "Press for Enter Animation"
 
-    val photoAlpha: Float by animateFloatAsState(
-        targetValue = if (isPhotoVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 500)
-    )
+        val photoAlpha: Float by animateFloatAsState(
+            targetValue = if (isPhotoVisible) 1f else 0f,
+            animationSpec = tween(durationMillis = 500)
+        )
 
-    val photoTranslationX: Float by animateFloatAsState(
-        targetValue = if (isPhotoVisible) 0f else -2000f,
-        animationSpec = tween(durationMillis = 500)
-    )
+        val photoTranslationX: Float by animateFloatAsState(
+            targetValue = if (isPhotoVisible) 0f else -2000f,
+            animationSpec = tween(durationMillis = 500)
+        )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = getAppBarTitle(animationType))
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = getAppBarTitle(animationType))
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+
+                )
+            },
+            content = {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.rog),
+                        contentDescription = "Photo",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .graphicsLayer(
+                                scaleX = photoScale,
+                                alpha = photoAlpha,
+                                translationX = photoTranslationX
+                            )
+                    )
+
+                    Button(
+                        onClick = {
+                            isPhotoVisible = !isPhotoVisible
+                            photoScale = if (isPhotoVisible) 1f else 0.5f
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = buttonLabel)
                     }
                 }
-
-            )
-        },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.rog),
-                    contentDescription = "Photo",
-                    modifier = Modifier
-                        .size(200.dp)
-                        .graphicsLayer(
-                            scaleX = photoScale,
-                            alpha = photoAlpha,
-                            translationX = photoTranslationX
-                        )
-                )
-
-                Button(
-                    onClick = {
-                        isPhotoVisible = !isPhotoVisible
-                        photoScale = if (isPhotoVisible) 1f else 0.5f
-                    },
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text(text = buttonLabel)
-                }
             }
+        )
+    }
+
+    @Composable
+    fun getAppBarTitle(animationType: String): String {
+        return when (animationType) {
+            "transition" -> "Transition Animation"
+            "scale" -> "Scale Animation"
+            "infinite" -> "Infinite Animation"
+            "enter_exit" -> "Enter Exit Animation"
+            else -> "Details"
         }
-    )
-}
-
-@Composable
-fun getAppBarTitle(animationType: String): String {
-    return when (animationType) {
-        "transition" -> "Transition Animation"
-        "scale" -> "Scale Animation"
-        "infinite" -> "Infinite Animation"
-        "enter_exit" -> "Enter Exit Animation"
-        else -> "Details"
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    Animation_A3Theme {
-        val context = androidx.compose.ui.platform.LocalContext.current
-        HomeScreen(NavController(context))
+    @Preview(showBackground = true)
+    @Composable
+    fun HomeScreenPreview() {
+        Animation_A3Theme {
+            val context = androidx.compose.ui.platform.LocalContext.current
+            HomeScreen(NavController(context))
+        }
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun DetailsScreenPreview() {
-    Animation_A3Theme {
-        val context = androidx.compose.ui.platform.LocalContext.current
-        DetailsScreen(NavController(context), "transition")
+    @Preview(showBackground = true)
+    @Composable
+    fun DetailsScreenPreview() {
+        Animation_A3Theme {
+            val context = androidx.compose.ui.platform.LocalContext.current
+            DetailsScreen(NavController(context), "transition")
+        }
     }
-}
