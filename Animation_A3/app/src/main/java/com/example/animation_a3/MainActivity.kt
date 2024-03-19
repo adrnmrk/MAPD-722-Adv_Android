@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,13 +48,9 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController, startDestination = "home") {
                     composable("home") { HomeScreen(navController) }
                     composable("transition") {
-                        TransitionAnimationScreen(navController)
+                        TransitionAnimationScreen(navController) }
+                    composable("enter_exit") { EnterExitAnimationScreen(navController) }
 
-                        //)
-//                        { backStackEntry ->
-//                        val animationType = backStackEntry.arguments?.getString("animationType") ?: ""
-//                        DetailsScreen(navController, animationType)
-                    }
                     }
                 }
             }
@@ -84,19 +79,15 @@ class MainActivity : ComponentActivity() {
                     "transition" -> {
                         navController.navigate("transition")
                     }
-
                     "scale" -> {
                         // Implement Scale Animation screen navigation here
                     }
-
                     "infinite" -> {
                         // Implement Infinite Animation screen navigation here
                     }
-
                     "enter_exit" -> {
                         // Implement Enter Exit Animation screen navigation here
-                        TODO()
-
+                        navController.navigate("enter_exit")
                     }
                 }
             },
@@ -112,12 +103,11 @@ class MainActivity : ComponentActivity() {
         var isRocketLaunched by remember { mutableStateOf(false) }
         val buttonLabel = if (isRocketLaunched) "Land Rocket" else "Launch Rocket"
 
-        // Define the animation properties
+        // Define the animation properties, start and end position of the image
         val animatedRocketTopOffset by animateFloatAsState(
             targetValue = if (isRocketLaunched)  100f else 500f, // Adjust the targetValue as needed
             animationSpec = tween(durationMillis = 1500) // Adjust the duration as needed
         )
-
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -143,7 +133,6 @@ class MainActivity : ComponentActivity() {
                                 x = (150).dp, // Adjust horizontal offset as needed
                                 y = maxOf(animatedRocketTopOffset.dp, 0.dp)
                             )
-                            //.align(Alignment.BottomEnd) // Align to bottom-right corner
                     )
 
                     // Button at the left side of the screen
@@ -163,72 +152,63 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @Composable
-    fun DetailsScreen(navController: NavController, animationType: String) {
-        var isPhotoVisible by remember { mutableStateOf(false) }
-        var photoScale by remember { mutableStateOf(1f) }
-        val buttonLabel =
-            if (isPhotoVisible) "Press for Exit Animation" else "Press for Enter Animation"
+@Composable
+fun EnterExitAnimationScreen(navController: NavController) {
+    var isPhotoVisible by remember { mutableStateOf(false) }
+    var photoScale by remember { mutableStateOf(1f) }
+    val buttonLabel =
+        if (isPhotoVisible) "Press for Exit Animation" else "Press for Enter Animation"
 
-        val photoAlpha: Float by animateFloatAsState(
-            targetValue = if (isPhotoVisible) 1f else 0f,
-            animationSpec = tween(durationMillis = 500)
-        )
+    val photoTranslationX: Float by animateFloatAsState(
+        targetValue = if (isPhotoVisible) 125f else -1000f, // Adjust targetValue as needed
+        animationSpec = tween(durationMillis = 1500) // Adjust duration as needed
+    )
 
-        val photoTranslationX: Float by animateFloatAsState(
-            targetValue = if (isPhotoVisible) 0f else -2000f,
-            animationSpec = tween(durationMillis = 500)
-        )
-
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(text = getAppBarTitle(animationType))
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                    }
-
-                )
-            },
-            content = {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.rog),
-                        contentDescription = "Photo",
-                        modifier = Modifier
-                            .size(200.dp)
-                            .graphicsLayer(
-                                scaleX = photoScale,
-                                alpha = photoAlpha,
-                                translationX = photoTranslationX
-                            )
-                    )
-
-                    Button(
-                        onClick = {
-                            isPhotoVisible = !isPhotoVisible
-                            photoScale = if (isPhotoVisible) 1f else 0.5f
-                        },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = buttonLabel)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Enter Exit Animation") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
-            }
-        )
-    }
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.rog),
+                    contentDescription = "Photo",
+                    modifier = Modifier
+                        .size(300.dp)
+                        .graphicsLayer(
+                            translationX = photoTranslationX
+                        )
+                )
 
-    @Composable
+                Button(
+                    onClick = {
+                        isPhotoVisible = !isPhotoVisible
+                        photoScale = if (isPhotoVisible) 1f else 0.5f
+                    },
+                    modifier = Modifier.padding(8.dp),
+
+                ) {
+                    Text(text = buttonLabel)
+
+                }
+            }
+        }
+    )
+}
+
+
+
+@Composable
     fun getAppBarTitle(animationType: String): String {
         return when (animationType) {
             "transition" -> "Transition Animation"
@@ -248,11 +228,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Preview(showBackground = true)
-    @Composable
-    fun DetailsScreenPreview() {
-        Animation_A3Theme {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            DetailsScreen(NavController(context), "transition")
-        }
-    }
