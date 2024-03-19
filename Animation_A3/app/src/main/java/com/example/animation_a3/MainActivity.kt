@@ -6,13 +6,16 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,11 +31,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -49,13 +56,75 @@ class MainActivity : ComponentActivity() {
                     composable("home") { HomeScreen(navController) }
                     composable("transition") {
                         TransitionAnimationScreen(navController) }
+                    composable("scale") { ScaleAnimationScreen(navController) }
+                    composable("infinite") { InfiniteAnimationScreen(navController) }
+
+
                     composable("enter_exit") { EnterExitAnimationScreen(navController) }
 
                     }
                 }
             }
         }
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @Composable
+    fun ScaleAnimationScreen(navController: NavHostController) {
+        var isScaled by remember { mutableStateOf(false) }
+        val scale by animateFloatAsState(
+            targetValue = if (isScaled) 2.0f else 1f,
+            animationSpec = tween(durationMillis = 500)
+        )
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "Scale Animation") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                )
+            },
+            content = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(200.dp) // Set a fixed size for the scaled area
+                            .scale(scale)
+                    ) {
+                        Button(
+                            onClick = {
+                                isScaled = !isScaled
+                            },
+                            modifier = Modifier
+                                //.fillMaxSize()
+                                .animateContentSize() // Animate the content size change
+                        ) {
+                            Text(
+                                text = "Click Me to Animate",
+                                style = TextStyle(fontSize = 16.sp)
+                            )
+                        }
+                    }
+                }
+            }
+        )
     }
+
+
+
+
+    private fun InfiniteAnimationScreen(navController: NavHostController) {
+    TODO()
+    }
+}
 
     @Composable
     fun HomeScreen(navController: NavController) {
@@ -81,9 +150,13 @@ class MainActivity : ComponentActivity() {
                     }
                     "scale" -> {
                         // Implement Scale Animation screen navigation here
+                        navController.navigate("scale")
+
                     }
                     "infinite" -> {
                         // Implement Infinite Animation screen navigation here
+                        navController.navigate("infinite")
+
                     }
                     "enter_exit" -> {
                         // Implement Enter Exit Animation screen navigation here
@@ -161,7 +234,12 @@ fun EnterExitAnimationScreen(navController: NavController) {
         if (isPhotoVisible) "Press for Exit Animation" else "Press for Enter Animation"
 
     val photoTranslationX: Float by animateFloatAsState(
-        targetValue = if (isPhotoVisible) 125f else -1000f, // Adjust targetValue as needed
+        targetValue = if (isPhotoVisible) 125f else -5000f, // Adjust targetValue as needed
+        animationSpec = tween(durationMillis = 1500) // Adjust duration as needed
+    )
+
+    val photoTranslationY: Float by animateFloatAsState(
+        targetValue = if (isPhotoVisible) 0f else -500f, // Adjust targetValue as needed
         animationSpec = tween(durationMillis = 1500) // Adjust duration as needed
     )
 
@@ -186,7 +264,8 @@ fun EnterExitAnimationScreen(navController: NavController) {
                     modifier = Modifier
                         .size(300.dp)
                         .graphicsLayer(
-                            translationX = photoTranslationX
+                            translationX = photoTranslationX,
+                            translationY = photoTranslationY
                         )
                 )
 
@@ -195,16 +274,15 @@ fun EnterExitAnimationScreen(navController: NavController) {
                         isPhotoVisible = !isPhotoVisible
                         photoScale = if (isPhotoVisible) 1f else 0.5f
                     },
-                    modifier = Modifier.padding(8.dp),
-
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Text(text = buttonLabel)
-
                 }
             }
         }
     )
 }
+
 
 
 
