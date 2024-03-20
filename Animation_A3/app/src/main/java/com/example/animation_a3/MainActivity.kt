@@ -7,7 +7,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -66,14 +70,58 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    //landing screen
+    @Composable
+    fun HomeScreen(navController: NavController) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AnimatedButton(navController, "Transition Animation", "transition")
+            AnimatedButton(navController, "Scale Animation", "scale")
+            AnimatedButton(navController, "Infinite Animation", "infinite")
+            AnimatedButton(navController, "Enter Exit Animation", "enter_exit")
+        }
+    }
+    //navigate to different screens
+    @Composable
+    fun AnimatedButton(navController: NavController, label: String, animationType: String) {
+        Button(
+            onClick = {
+                when (animationType) {
+                    "transition" -> {
+                        navController.navigate("transition")
+                    }
+                    "scale" -> {
+                        // Implement Scale Animation screen navigation here
+                        navController.navigate("scale")
 
+                    }
+                    "infinite" -> {
+                        // Implement Infinite Animation screen navigation here
+                        navController.navigate("infinite")
+
+                    }
+                    "enter_exit" -> {
+                        // Implement Enter Exit Animation screen navigation here
+                        navController.navigate("enter_exit")
+                    }
+                }
+            },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = label)
+        }
+    }
+//scale animation
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     fun ScaleAnimationScreen(navController: NavHostController) {
         var isScaled by remember { mutableStateOf(false) }
         val scale by animateFloatAsState(
             targetValue = if (isScaled) 2.0f else 1f,
-            animationSpec = tween(durationMillis = 500)
+            animationSpec = tween(durationMillis = 1000)
         )
 
         Scaffold(
@@ -118,58 +166,53 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-
-
-
-    private fun InfiniteAnimationScreen(navController: NavHostController) {
-    TODO()
-    }
-}
-
+//infinite animation
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
-    fun HomeScreen(navController: NavController) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AnimatedButton(navController, "Transition Animation", "transition")
-            AnimatedButton(navController, "Scale Animation", "scale")
-            AnimatedButton(navController, "Infinite Animation", "infinite")
-            AnimatedButton(navController, "Enter Exit Animation", "enter_exit")
-        }
-    }
+    fun InfiniteAnimationScreen(navController: NavHostController) {
+        val infiniteAnimation = rememberInfiniteTransition()
 
-    @Composable
-    fun AnimatedButton(navController: NavController, label: String, animationType: String) {
-        Button(
-            onClick = {
-                when (animationType) {
-                    "transition" -> {
-                        navController.navigate("transition")
-                    }
-                    "scale" -> {
-                        // Implement Scale Animation screen navigation here
-                        navController.navigate("scale")
+        val scale by infiniteAnimation.animateFloat(
+            initialValue = 0.5f,
+            targetValue = 1.5f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
 
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "Infinite Animation") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
                     }
-                    "infinite" -> {
-                        // Implement Infinite Animation screen navigation here
-                        navController.navigate("infinite")
-
-                    }
-                    "enter_exit" -> {
-                        // Implement Enter Exit Animation screen navigation here
-                        navController.navigate("enter_exit")
-                    }
-                }
+                )
             },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text(text = label)
-        }
+            content = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.android), // Replace 'your_image' with your actual image resource
+                        contentDescription = "Pulsating Image",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .scale(scale)
+                    )
+                }
+            }
+        )
     }
 
+}
+//transition animation
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     fun TransitionAnimationScreen(navController: NavController) {
@@ -224,7 +267,7 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-
+//enter exit animation
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EnterExitAnimationScreen(navController: NavController) {
@@ -284,25 +327,15 @@ fun EnterExitAnimationScreen(navController: NavController) {
 }
 
 
-
-
-@Composable
-    fun getAppBarTitle(animationType: String): String {
-        return when (animationType) {
-            "transition" -> "Transition Animation"
-            "scale" -> "Scale Animation"
-            "infinite" -> "Infinite Animation"
-            "enter_exit" -> "Enter Exit Animation"
-            else -> "Details"
-        }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun HomeScreenPreview() {
-        Animation_A3Theme {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            HomeScreen(NavController(context))
-        }
-    }
+//@Composable
+//    fun getAppBarTitle(animationType: String): String {
+//        return when (animationType) {
+//            "transition" -> "Transition Animation"
+//            "scale" -> "Scale Animation"
+//            "infinite" -> "Infinite Animation"
+//            "enter_exit" -> "Enter Exit Animation"
+//            else -> "Details"
+//        }
+//    }
+//
 
